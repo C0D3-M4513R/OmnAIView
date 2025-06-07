@@ -1,0 +1,34 @@
+name: Build-Windows-Binary
+
+permissions:
+  actions: read
+
+on:
+  push:
+    branch:
+    pull_request:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  Build-Windows:
+    runs-on: windows-latest
+    steps:
+      - name: Repository-Checkout
+        uses: actions/checkout@v4
+      - name: Install NPM-Dependencies
+        run: npm run install:all
+      - name: Build Project
+        run: npm run build
+      - name: Test Angular
+        working-directory: angular-frontend
+        run: npx ng test
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OmnaiView-Windows-${{ github.ref_name }}
+          path: |
+            electron\out\make\squirrel.windows\x64\RELEASES
+            electron\out\make\squirrel.windows\x64\*.nupkg
+            electron\out\make\squirrel.windows\x64\*.exe
